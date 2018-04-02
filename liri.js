@@ -1,15 +1,19 @@
 require("dotenv").config();
+var fs = require('fs')
+var req = require('request')
 var keys = require("./keys.js")
-var SpotifyWebApi = require('spotify-web-api-node');
+
 var Twitter = require('twitter')
 var inq = require('inquirer')
 var pmpt = inq.createPromptModule()
     // credentials are optional
-var spotify = new SpotifyWebApi(keys.spotify);
-spotify.setAccessToken('BQBKmgFUSybLehuYJLFdv9glJId17ImfFCuYhaO_uvE9G88bMLVhRb389TLByJ8fb2psAjVviR0JqbW4aAHygnumHYDNBFOSQdlpNjvBuFPlH4hwBQD7vHTAzicCSfg9gCVoXk8n_jbGnENwjhdfh0iwu2vE6GF8mq9pstmEkg');
+var SpotifyWebApi = require('spotify-web-api-node');
+var spotifyApi = new SpotifyWebApi(keys.spotify)
+
+spotifyApi.setAccessToken('BQBKmgFUSybLehuYJLFdv9glJId17ImfFCuYhaO_uvE9G88bMLVhRb389TLByJ8fb2psAjVviR0JqbW4aAHygnumHYDNBFOSQdlpNjvBuFPlH4hwBQD7vHTAzicCSfg9gCVoXk8n_jbGnENwjhdfh0iwu2vE6GF8mq9pstmEkg');
 var client = new Twitter(keys.twitter)
 var command = process.argv[2]
-    //var title = process.argv.slice[3]
+var title = process.argv.slice(3)
 switch (command) {
     case 'my-tweets':
         client.get('statuses/user_timeline', function(error, tweets, response) {
@@ -20,21 +24,52 @@ switch (command) {
         });
         break;
     case 'spotify-this-song':
-        // Search tracks whose name, album or artist contains 'Love'
-        var title = process.argv.slice(3)
-        spotify.searchTracks('love')
+
+        // Get Elvis' albums
+        spotifyApi.getArtistAlbums('43ZHCT0cAZBISjO8DG9PnE')
             .then(function(data) {
-                console.log('Search by "Love"', data.body);
+                console.log('Artist albums', data.body);
             }, function(err) {
                 console.error(err);
             });
-
         break;
     case 'movie-this':
+        if (title != '') {
+
+            showMovie()
+        } else {
+            title = 'Mr.Nobody'
+            showMovie()
+        }
         break;
     case 'do-what-it-says':
+        fs.readFile('./random.txt', 'utf8', function(err, data) {
+            if (err) {
+                console.log(err)
+            }
+            console.log(JSON.parse(data));
+        })
         break;
     default:
 
 
+}
+
+function showMovie() {
+    req('http://www.omdbapi.com/?t=' + title + '&apikey=' + keys.omdb.omdbkey + '', function(error, response, body) {
+        if (error != null) {
+            console.log('error:', error); // Print the error if one occurred
+        } else {
+
+            var movie = JSON.parse(body)
+            console.log('Title: ' + movie.Title)
+            console.log('Year: ' + movie.Year)
+            console.log('Imbd Rating: ' + movie.imdbRating)
+            console.log(movie.Ratings[1].Source + ': ' + movie.Ratings[1].Value)
+            console.log('Country: ' + movie.Country)
+            console.log('Language: ' + movie.Language)
+            console.log('Plot: ' + movie.Plot)
+            console.log('Actors: ' + movie.Actors)
+        }
+    });
 }

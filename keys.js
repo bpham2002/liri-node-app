@@ -1,4 +1,4 @@
-console.log('this is loaded');
+//console.log('this is loaded');
 
 exports.twitter = {
     consumer_key: process.env.TWITTER_CONSUMER_KEY,
@@ -12,3 +12,6 @@ exports.spotify = {
     clientSecret: process.env.SPOTIFY_SECRET,
     redirectUri: 'http://www.example.com/callback'
 };
+exports.omdb = {
+    omdbkey: process.env.OMDB_KEY
+}
