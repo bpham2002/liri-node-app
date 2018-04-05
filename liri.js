@@ -7,10 +7,9 @@ var Twitter = require('twitter')
 var inq = require('inquirer')
 var pmpt = inq.createPromptModule()
     // credentials are optional
-var SpotifyWebApi = require('spotify-web-api-node');
-var spotifyApi = new SpotifyWebApi(keys.spotify)
+var Spotify = require('node-spotify-api');
+var spotify = new Spotify(keys.spotify)
 
-spotifyApi.setAccessToken('BQBKmgFUSybLehuYJLFdv9glJId17ImfFCuYhaO_uvE9G88bMLVhRb389TLByJ8fb2psAjVviR0JqbW4aAHygnumHYDNBFOSQdlpNjvBuFPlH4hwBQD7vHTAzicCSfg9gCVoXk8n_jbGnENwjhdfh0iwu2vE6GF8mq9pstmEkg');
 var client = new Twitter(keys.twitter)
 var command = process.argv[2]
 var title = process.argv.slice(3)
@@ -24,13 +23,29 @@ switch (command) {
         });
         break;
     case 'spotify-this-song':
-
-        // Get Elvis' albums
-        spotifyApi.getArtistAlbums('43ZHCT0cAZBISjO8DG9PnE')
+        spotify
+            .request('https://api.spotify.com/v1/search?q=' + title + '%20&type=album')
             .then(function(data) {
-                console.log('Artist albums', data.body);
-            }, function(err) {
-                console.error(err);
+                for (var key in data.albums.items[0].artists) {
+                    console.log('Atist: ' + data.albums.items[0].artists[key].name);
+                }
+                console.log('Album: ' + data.albums.items[0].name)
+            })
+            .catch(function(err) {
+                console.error('Error occurred: ' + err);
+            });
+        spotify
+            .search({ type: 'track', query: 'All the Small Things' })
+            .then(function(response) {
+                console.log('Album: ' + response.tracks.items[0].album.name);
+                for (var key in response.tracks.items[0].artists) {
+                    console.log('Atist: ' + response.tracks.items[0].artists[key].name);
+                }
+                console.log(`Song's name: ` + response.tracks.items[0].name)
+                console.log(`preview link: ` + response.tracks.items[0].external_urls.spotify)
+            })
+            .catch(function(err) {
+                console.log(err);
             });
         break;
     case 'movie-this':

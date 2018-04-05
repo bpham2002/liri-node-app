@@ -8,9 +8,9 @@ exports.twitter = {
 };
 
 exports.spotify = {
-    clientId: process.env.SPOTIFY_ID,
-    clientSecret: process.env.SPOTIFY_SECRET,
-    redirectUri: 'http://www.example.com/callback'
+    id: process.env.SPOTIFY_ID,
+    secret: process.env.SPOTIFY_SECRET,
+
 };
 exports.omdb = {
     omdbkey: process.env.OMDB_KEY
