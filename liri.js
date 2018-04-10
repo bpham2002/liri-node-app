@@ -13,61 +13,68 @@ var spotify = new Spotify(keys.spotify)
 var client = new Twitter(keys.twitter)
 var command = process.argv[2]
 var title = process.argv.slice(3)
-switch (command) {
-    case 'my-tweets':
-        client.get('statuses/user_timeline', function(error, tweets, response) {
-            if (error) throw error;
-            for (var i = 0; i < tweets.length; i++) {
-                console.log(tweets[i].text + ' created at: ' + tweets[i].created_at);
-            }
-        });
-        break;
-    case 'spotify-this-song':
-        spotify
-            .request('https://api.spotify.com/v1/search?q=' + title + '%20&type=album')
-            .then(function(data) {
-                for (var key in data.albums.items[0].artists) {
-                    console.log('Atist: ' + data.albums.items[0].artists[key].name);
+operate()
+
+function operate() {
+
+    switch (command) {
+        case 'my-tweets':
+            client.get('statuses/user_timeline', function(error, tweets, response) {
+                if (error) throw error;
+                for (var i = 0; i < tweets.length; i++) {
+                    console.log(tweets[i].text + ' created at: ' + tweets[i].created_at);
                 }
-                console.log('Album: ' + data.albums.items[0].name)
-            })
-            .catch(function(err) {
-                console.error('Error occurred: ' + err);
             });
-        spotify
-            .search({ type: 'track', query: 'All the Small Things' })
-            .then(function(response) {
-                console.log('Album: ' + response.tracks.items[0].album.name);
-                for (var key in response.tracks.items[0].artists) {
-                    console.log('Atist: ' + response.tracks.items[0].artists[key].name);
-                }
-                console.log(`Song's name: ` + response.tracks.items[0].name)
-                console.log(`preview link: ` + response.tracks.items[0].external_urls.spotify)
-            })
-            .catch(function(err) {
-                console.log(err);
-            });
-        break;
-    case 'movie-this':
-        if (title != '') {
+            break;
+        case 'spotify-this-song':
+            spotify
+                .request('https://api.spotify.com/v1/search?q=' + title + '%20&type=album')
+                .then(function(data) {
+                    for (var key in data.albums.items[0].artists) {
+                        console.log('Atist: ' + data.albums.items[0].artists[key].name);
+                    }
+                    console.log('Album: ' + data.albums.items[0].name)
+                })
+                .catch(function(err) {
+                    console.error('Error occurred: ' + err);
+                });
+            spotify
+                .search({ type: 'track', query: title })
+                .then(function(response) {
+                    console.log('Album: ' + response.tracks.items[0].album.name);
+                    for (var key in response.tracks.items[0].artists) {
+                        console.log('Atist: ' + response.tracks.items[0].artists[key].name);
+                    }
+                    console.log(`Song's name: ` + response.tracks.items[0].name)
+                    console.log(`preview link: ` + response.tracks.items[0].external_urls.spotify)
+                })
+                .catch(function(err) {
+                    console.log(err);
+                });
+            break;
+        case 'movie-this':
+            if (title != '') {
 
-            showMovie()
-        } else {
-            title = 'Mr.Nobody'
-            showMovie()
-        }
-        break;
-    case 'do-what-it-says':
-        fs.readFile('./random.txt', 'utf8', function(err, data) {
-            if (err) {
-                console.log(err)
+                showMovie()
+            } else {
+                title = 'Mr.Nobody'
+                showMovie()
             }
-            console.log(JSON.parse(data));
-        })
-        break;
-    default:
+            break;
+        case 'do-what-it-says':
+            fs.readFile('./random.txt', 'utf8', function(err, data) {
+                if (err) {
+                    console.log(err)
+                }
+                command = data.split(',')[0];
+                title = data.split(',')[1]
+                operate()
+            })
+            break;
+        default:
 
 
+    }
 }
 
 function showMovie() {
